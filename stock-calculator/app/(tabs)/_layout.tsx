@@ -3,11 +3,12 @@ import React from 'react';
 import {Colors} from '@/constants/theme';
 import {useColorScheme} from '@/hooks/use-color-scheme';
 import {createMaterialTopTabNavigator} from "@react-navigation/material-top-tabs";
-import {ParamListBase, TabNavigationState} from "@react-navigation/native";
+import {IconSymbol} from "@/components/ui/icon-symbol";
 
 // 1. Expo Router와 호환되는 Top Tab Navigator 생성
 const {Navigator} = createMaterialTopTabNavigator()
-export const MaterialTopTabs = withLayoutContext<TabNavigationState<ParamListBase>, typeof Navigator>(Navigator)
+// export const MaterialTopTabs = withLayoutContext<TabNavigationState<ParamListBase>, typeof Navigator>(Navigator)
+export const MaterialTopTabs = withLayoutContext(Navigator as any)
 
 export default function TabLayout() {
 	const colorScheme = useColorScheme();
@@ -24,14 +25,19 @@ export default function TabLayout() {
 				options={{
 					title: 'Home',
 					// 상단 탭은 보통 아이콘 없이 텍스트만 쓰지만, 원한다면 아이콘 유지 가능
-					// tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+					tabBarIcon: ({color}: { color: string }) => <IconSymbol size={28} name="house.fill" color={color}/>,
 				}}/>
 			<MaterialTopTabs.Screen
 				name="explore"
 				options={{
 					title: 'Explore',
-				}}
-			/>
+				}}/>
+			<MaterialTopTabs.Screen
+				name="calculator"
+				options={{
+					title: 'Calculator',
+					tabBarIcon: ({color}: { color: string }) => <IconSymbol size={28} name="play.diamond.fill" color={color}/>,
+				}}/>
 		</MaterialTopTabs>
 		/*<Tabs
 			screenOptions={{
