@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View} from 'react-native';
+import {StyleSheet, TextInput, View} from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {ThemedText} from '@/components/themed-text';
 import {ThemedView} from '@/components/themed-view';
 import {useThemeColor} from '@/hooks/use-theme-color';
@@ -75,12 +76,14 @@ export default function Calculator() {
 
 	return (
 		<ThemedView style={styles.container}>
-			{/* 키보드가 올라올 때 화면이 가려지지 않도록 패딩/높이 조절 */}
-			<KeyboardAvoidingView
-				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-				style={{flex: 1}}
+			{/* 키보드가 인풋을 가리는 문제를 해결하기 위해 KeyboardAwareScrollView 사용 */}
+			<KeyboardAwareScrollView
+				style={{ flex: 1 }}
+				contentContainerStyle={styles.scrollContent}
+				enableOnAndroid={true}
+				extraScrollHeight={100}
+				keyboardShouldPersistTaps="handled"
 			>
-				<ScrollView contentContainerStyle={styles.scrollContent}>
 
 					<ThemedText type="title" style={styles.headerTitle}>물타기 계산기</ThemedText>
 					<ThemedText style={styles.subtitle}>평단가와 수량을 계산해보세요.</ThemedText>
@@ -152,8 +155,7 @@ export default function Calculator() {
 						</View>
 					</View>
 
-				</ScrollView>
-			</KeyboardAvoidingView>
+			</KeyboardAwareScrollView>
 		</ThemedView>
 	);
 }
