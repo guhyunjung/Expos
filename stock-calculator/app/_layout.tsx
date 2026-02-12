@@ -30,8 +30,9 @@ export default function RootLayout() {
 				<Stack.Screen
 					name="modal"
 					options={{
-						presentation: 'modal',
-						title: '도움말',
+						presentation: 'transparentModal',
+						animation: 'fade',
+						headerShown: false,
 					}}
 				/>
 				{/* 4. 설정 화면: 파일명은 settings.tsx지만, 헤더에는 '앱 설정'이라고 표시 */}

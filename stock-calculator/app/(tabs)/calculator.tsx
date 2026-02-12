@@ -4,8 +4,8 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {ThemedText} from '@/components/themed-text';
 import {ThemedView} from '@/components/themed-view';
 import {useThemeColor} from '@/hooks/use-theme-color';
+import {router} from "expo-router";
 
-// 결과 카드 강조 색상 (브랜드 컬러 등)
 const PRIMARY_COLOR = '#0a7ea4';
 
 // 물타기(평단가) 계산기 컴포넌트
@@ -115,7 +115,8 @@ export default function Calculator() {
 	};
 
 	const openList = () => {
-		resetForm();
+		// resetForm();
+		router.push('/modal');
 	};
 
 	const saveForm = () => {
@@ -127,18 +128,13 @@ export default function Calculator() {
 	// -------------------------------------------------------------------------
 	return (
 		<ThemedView style={styles.container}>
-			{/*
-				KeyboardAwareScrollView 사용 이유:
-				모바일 기기에서 텍스트 입력 시 키보드가 올라오면서 입력창을 가리는 현상을 방지합니다.
-				입력 필드에 포커스가 가면 자동으로 스크롤을 조절하여 사용자가 입력 내용을 볼 수 있게 합니다.
-			*/}
 			<KeyboardAwareScrollView
 				style={{flex: 1}}
 				contentContainerStyle={styles.scrollContent}
 				enableOnAndroid={true} // 안드로이드에서도 동작하도록 설정
 				extraScrollHeight={100} // 키보드 위로 여분의 공간을 확보하여 시인성 확보
-				keyboardShouldPersistTaps="handled"> {/* 키보드가 떠있을 때 다른 곳 터치 처리를 원활하게 함 */}
-
+				keyboardShouldPersistTaps="handled" //키보드가 떠있을 때 다른 곳 터치 처리를 원활하게 함
+			>
 				<ThemedText type="title" style={styles.headerTitle}>물타기 계산기</ThemedText>
 				<ThemedText style={styles.subtitle}>평단가와 수량을 계산해보세요.</ThemedText>
 
@@ -234,43 +230,15 @@ export default function Calculator() {
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
-	scrollContent: {
-		padding: 20,
-		paddingBottom: 40,
-	},
-	headerTitle: {
-		marginBottom: 8,
-	},
-	subtitle: {
-		marginBottom: 24,
-		opacity: 0.7,
-	},
-	card: {
-		borderWidth: 1,
-		borderRadius: 12,
-		padding: 16,
-		marginBottom: 20,
-	},
-	cardTitle: {
-		marginBottom: 16,
-	},
-	inputContainer: {
-		marginBottom: 16,
-	},
-	label: {
-		fontSize: 14,
-		marginBottom: 8,
-		opacity: 0.8,
-	},
-	input: {
-		borderWidth: 1,
-		borderRadius: 8,
-		padding: 12,
-		fontSize: 16,
-	},
+	container: {flex: 1},
+	scrollContent: {padding: 20, paddingBottom: 40},
+	headerTitle: {marginBottom: 8},
+	subtitle: {marginBottom: 24, opacity: 0.7},
+	card: {borderWidth: 1, borderRadius: 12, padding: 16, marginBottom: 20},
+	cardTitle: {marginBottom: 16},
+	inputContainer: {marginBottom: 16},
+	label: {fontSize: 14, marginBottom: 8, opacity: 0.8},
+	input: {borderWidth: 1, borderRadius: 8, padding: 12, fontSize: 16},
 	summaryRow: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
