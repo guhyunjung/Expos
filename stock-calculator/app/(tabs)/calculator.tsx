@@ -1,10 +1,27 @@
 import React, {useState} from 'react';
-import {StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
+import {
+	Pressable,
+	StyleSheet,
+	TextInput,
+	View,
+	Platform,
+	requireNativeComponent,
+} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {ThemedText} from '@/components/themed-text';
 import {ThemedView} from '@/components/themed-view';
 import {useThemeColor} from '@/hooks/use-theme-color';
 import {router} from "expo-router";
+import MaskInput from 'react-native-mask-input';
+import type {TextInputProps} from 'react-native';
+
+type DecimalTextInputNativeProps = TextInputProps & {
+	decimalPlaces?: number;
+};
+
+const AndroidDecimalTextInput = Platform.OS === 'android'
+	? requireNativeComponent<DecimalTextInputNativeProps>('DecimalTextInput')
+	: null;
 
 const PRIMARY_COLOR = '#0a7ea4';
 
@@ -22,6 +39,8 @@ export default function Calculator() {
 	// 추가로 매수(물타기)할 자산의 희망가와 수량 상태
 	const [addPrice, setAddPrice] = useState('');
 	const [addQty, setAddQty] = useState('');
+
+	const [phone, setPhone] = React.useState('');
 
 	// -------------------------------------------------------------------------
 	// 테마 및 스타일 관련 (Theme & Styles)
@@ -83,6 +102,18 @@ export default function Calculator() {
 	// 서브 컴포넌트 (Sub-components)
 	// -------------------------------------------------------------------------
 
+	const sanitizeDecimalInput = (text: string) => {
+        if (text === '') return '';
+        const onlyDigitsAndDot = text.replace(/[^\d.]/g, '');
+        const [integerPart, ...decimalChunks] = onlyDigitsAndDot.split('.');
+        const decimalPart = decimalChunks.join('').slice(0, 5);
+
+        if (decimalChunks.length > 0) {
+            return `${integerPart || '0'}.${decimalPart}`;
+        }
+        return integerPart;
+    };
+
 	// 재사용 가능한 입력 필드 컴포넌트
 	// 라벨, 입력값, 변경 핸들러, 플레이스홀더를 props로 받음
 	const InputField = ({label, value, onChangeText, placeholder}: {
@@ -90,19 +121,39 @@ export default function Calculator() {
 		value: string,
 		onChangeText: (text: string) => void,
 		placeholder: string
-	}) => (
-		<View style={styles.inputContainer}>
-			<ThemedText style={styles.label}>{label}</ThemedText>
-			<TextInput
-				style={[styles.input, {color: textColor, borderColor: placeholderColor}]}
-				value={value}
-				onChangeText={onChangeText}
-				placeholder={placeholder}
-				placeholderTextColor={placeholderColor}
-				keyboardType="numeric"
-			/>
-		</View>
-	);
+	}) => {
+		const handleChange = (text: string) => {
+			if (Platform.OS === 'android') {
+				onChangeText(text);
+				return;
+			}
+			const sanitized = sanitizeDecimalInput(text);
+			onChangeText(sanitized);
+        };
+
+		const sharedInputProps = {
+			style: [styles.input, {color: textColor, borderColor: placeholderColor}],
+			value,
+			onChangeText: handleChange,
+			placeholder,
+			placeholderTextColor: placeholderColor,
+			keyboardType: 'decimal-pad' as const,
+			maxLength: 16,
+		};
+
+		return (
+			<View style={styles.inputContainer}>
+				<ThemedText style={styles.label}>{label}</ThemedText>
+				{Platform.OS === 'android' && AndroidDecimalTextInput ? (
+					<AndroidDecimalTextInput
+						{...sharedInputProps}
+						decimalPlaces={5}
+					/>
+				) : (
+					<TextInput {...sharedInputProps} />
+				)}
+			</View>
+	)};
 
 	// -------------------------------------------------------------------------
 	// 이벤트 핸들러 (Event Handlers)
@@ -159,6 +210,18 @@ export default function Calculator() {
 					</View>
 				</View>
 
+				<MaskInput
+					value={phone}
+					onChangeText={(masked, unmasked) => {
+						setPhone(masked); // you can use the unmasked value as well
+
+						// assuming you typed "9" all the way:
+						console.log(masked); // (99) 99999-9999
+						console.log(unmasked); // 99999999999
+					}}
+					mask={['(', /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+				/>
+
 				{/* 섹션 2: 추가 매수 계획 입력 영역 */}
 				<View style={[styles.card, {borderColor: placeholderColor, backgroundColor: cardBackgroundColor}]}>
 					<ThemedText type="subtitle" style={styles.cardTitle}>추가 매수 (물타기)</ThemedText>
@@ -207,21 +270,21 @@ export default function Calculator() {
 				</View>
 
 				<View style={styles.btn}>
-					<TouchableOpacity
+					<Pressable
 						style={[styles.button, styles.buttonSecondary]}
 						onPress={resetForm}>
 						<ThemedText style={[styles.buttonText, styles.buttonTextSecondary]}>초기화</ThemedText>
-					</TouchableOpacity>
-					<TouchableOpacity
+					</Pressable>
+					<Pressable
 						style={[styles.button, styles.buttonSecondary]}
 						onPress={openList}>
 						<ThemedText style={[styles.buttonText, styles.buttonTextSecondary]}>목록</ThemedText>
-					</TouchableOpacity>
-					<TouchableOpacity
+					</Pressable>
+					<Pressable
 						style={[styles.button, styles.buttonPrimary]}
 						onPress={saveForm}>
 						<ThemedText style={[styles.buttonText, styles.buttonTextPrimary]}>저장</ThemedText>
-					</TouchableOpacity>
+					</Pressable>
 				</View>
 
 			</KeyboardAwareScrollView>

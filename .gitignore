@@ -49,3 +49,9 @@ app-example
 .vscode/
 *.swp
 *.iml
+
+# android 폴더 무시 해제 설정 (순차적 해제 필요)
+!android/
+!android/app/
+!android/app/src/
+!android/app/src/main/
